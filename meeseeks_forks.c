@@ -96,7 +96,7 @@ void iniciar(char* tarea, double dificultad){
     int temp_instancia; //Para asignar la instancia a los hijos
     int primerMeeseek;
 
-    bool esHijo;
+    //bool esHijo;
 
     clock_t inicio = clock();
     double tiempoTotal = 0.0;
