@@ -130,7 +130,7 @@ void operacionAritmetica(){
     printf("Operaciones + - * /\n");
     printf("Ingrese la operacion a resolver:  ");
 
-    scanf("%[^\n]%*c", operacion);
+    scanf("%[^\n]s", operacion);
     getchar();
     int op1, op2;
     int resultado = 0;
@@ -176,7 +176,7 @@ void ejecutarPrograma(){
     char* programa = malloc(sizeof(char)*10000);
 
     printf("Ingrese el programa a ejecutar (por ejemplo 'gedit'):  ");
-    scanf("%s", programa);
+    scanf("%[^\n]s", programa);
     getchar();
 
     clock_t inicio = clock();

@@ -38,6 +38,7 @@ int leerDificultad(){
     int dificultad;
     printf("Ingrese la dificultad de su solicitud (100:trivial, 0:imposible, -1:No sabe): ");
     scanf("%d", &dificultad);
+    getchar();
 
     if(dificultad == -1){
         dificultad = generarRandom(0, 100);
@@ -55,17 +56,17 @@ double diluirDificultad(double dificultad){
         return dificultad;
     } else{
         double temp = generarRandom(1, (int) dificultad); //Random no mayor a la dificultad
-        double reduc = temp * (dificultad / 1000); //Se reduce a una milesima dictada por la dificultad
+        double reduc = temp * (dificultad / generarRandom(400,600)); //Se reduce a una milesima dictada por la dificultad
         
         return dificultad + reduc;
     }
 }
 
 bool intentarTarea(double dificultad){
-    int milisegundos = generarRandom(500, 5000); //Para dormir entre 0.5s y 5s
+    int segundos = generarRandom(1, 5); //Para dormir entre 1s y 5s
 
     //El Mr. Meeseeks 'intenta' la tarea por un tiempo
-    usleep(milisegundos * 1000); //Conversion a microsegundos (u)
+    sleep(segundos); 
 
     if(dificultad <= 85.01){
         return false; //Necesita ayuda de otros Mr. Meeseeks
@@ -76,11 +77,11 @@ bool intentarTarea(double dificultad){
 
 int obtenerHijosPorCrear(double dificultad){
     if (dificultad >= 0 & dificultad <= 45){
-        return 3; //TODO ver si hacemos que cree n meeseeks :v
+        return generarRandom(3, 5); //TODO ver si hacemos que cree n meeseeks :v
         
     }else if(dificultad > 45 & dificultad <= 85){
         //Crea entre uno y dos Meeseeks
-        return generarRandom(1, 3);
+        return generarRandom(1, 2);
 
     }else{
         return 0;
@@ -93,21 +94,24 @@ void iniciar(char* tarea, double dificultad){
     int N = 1;
     int instancia = 1;
     int temp_instancia; //Para asignar la instancia a los hijos
+    int primerMeeseek;
 
     bool esHijo;
 
     clock_t inicio = clock();
     double tiempoTotal = 0.0;
 
-    pid = fork();
+    pid = fork(); //Primer Meeseek que crea la caja
 
     if(pid == 0){
-
-        printf("Hi I'm Mr Meeseeks! Look at Meeeee. (pid: %d, ppid: %d, N: %d, i: %d)\n",
+        primerMeeseek = getpid();
+        setpgid(0,0);
+        printf("Hi I'm Mr Meeseeks! Look at Meeeee. (pid: %d, ppid: %d, N: %d, i: %d, gpid: %d)\n",
             getpid(),
             getppid(),
             N,
-            instancia
+            instancia,
+            getpgrp()
         );
 
         while(true){
@@ -141,11 +145,12 @@ void iniciar(char* tarea, double dificultad){
                         srand(time(NULL) ^ (getpid()<<16)); //Nueva semilla basada en el pid
                         instancia = temp_instancia;
                         printf(
-                            "Hi I'm Mr Meeseeks! Look at Meeeee. (pid: %d, ppid: %d, N: %d, i: %d)\n",
+                            "Hi I'm Mr Meeseeks! Look at Meeeee. (pid: %d, ppid: %d, N: %d, i: %d, gpid: %d)\n",
                             getpid(),
                             getppid(),
                             N,
-                            instancia
+                            instancia,
+                            getpgrp()
                         );
 
                         dificultad = diluirDificultad(dificultad);
@@ -164,7 +169,7 @@ void iniciar(char* tarea, double dificultad){
                 }
             }
         }
-
+    
     }
     else{
         wait(NULL);

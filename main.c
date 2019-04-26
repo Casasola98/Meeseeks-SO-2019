@@ -13,15 +13,17 @@ int main(){
     char* tarea;
     double dificultad;
 
+
     int MeeseekBox = getpid();
     printf("Meeseeks Box    %d \n", MeeseekBox);
+    
     while(n != '4'){
         impMeeseekBox();
         printf("Seleccione la accion que desea realizar:\n    1. Accion Textual\n    2. Operaciones Aritmeticas\n    3. Ejecutar Programa\n    4. Salir\n\nIngrese su opcion: ");
 
         scanf("%c", &n);
         getchar();
-
+        
         switch (n)
         {
         case '1':
@@ -40,7 +42,7 @@ int main(){
             printf("Concluyendo Mr. Meeseeks Box, hasta luego\n");
             break;
         default:
-            printf("Opcion inexistente en la Mr. Meeseeks Box\n");
+            printf("Opcion inexistente en la Mr. Meeseeks Box  %c %d\n", n, getpid());
             break;
         }
 
