@@ -80,7 +80,7 @@ int obtenerHijosPorCrear(double dificultad){
         
     }else if(dificultad > 45 & dificultad <= 85){
         //Crea entre uno y dos Meeseeks
-        return generarRandom(1, 2);
+        return generarRandom(1, 3);
 
     }else{
         return 0;
