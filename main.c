@@ -1,13 +1,32 @@
-#include <stdio.h>
+/*#include <stdio.h>
 #include <stdlib.h> 
 #include <unistd.h>
+#include <time.h>*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <string.h>
+#include <pthread.h>
+#include <semaphore.h>
 #include <time.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <errno.h>
 
 #include "meeseeks_forks.c"
+#include "estructuras.h"
 //#include "operaciones.c"
 
 int main(){
     srand (time(NULL)); //Inicializa el seed del rand
+
+    char *segmentoMemoria;
+    struct globales *vglobales;
+
+    compartirGlobales(segmentoMemoria, vglobales);
+    init_semaforos(vglobales);
 
     char n;
     char* tarea;
@@ -30,7 +49,7 @@ int main(){
             tarea = leerSolicitud();
             dificultad = leerDificultad();
 
-            iniciar(tarea, dificultad);
+            iniciar(tarea, dificultad, vglobales);
             break;
         case '2':
             operacionAritmetica();

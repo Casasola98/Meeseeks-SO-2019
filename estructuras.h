@@ -18,10 +18,10 @@ solucionar el problema.
 */
 struct infoMeeseek
 {
-    int pid;
-    int ppid;
-    int N;
-    int i;
+    int *pid;
+    int *ppid;
+    int *N;
+    int *i;
 };
 
 /*
@@ -31,17 +31,17 @@ Estructura que almacena todas las variables de datos que comparten los procesos
 entre si para la ejecucion. No se incluye el mensaje del trabajo a realizar 
 debido a las restricciones establecidas en la especificacion.
 
-Para las variables de progreso, instancia y solucionador existen semaforos para
+Para las variables de concluido, instancia y solucionador existen semaforos para
 controlar su modificacion.
 */
 struct globales{
-    sem_t sem_progreso;
-    sem_t sem_instancia;
+    sem_t sem_concluido;
+    //sem_t sem_instancia;
     sem_t sem_solucionador;
 
-    int progreso;
-    int instancia;
-    struct infoMeeseek * infoSolucionador;
+    int concluido;
+    //int instancia;
+    struct infoMeeseek *infoSolucionador;
 
     int instanciasFinalizadas;
 };

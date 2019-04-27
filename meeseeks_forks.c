@@ -88,7 +88,7 @@ int obtenerHijosPorCrear(double dificultad){
     }
 }
 
-void iniciar(char* tarea, double dificultad){
+void iniciar(char* tarea, double dificultad, struct globales *vglobales){
     pid_t pid;
 
     int N = 1;
@@ -96,10 +96,12 @@ void iniciar(char* tarea, double dificultad){
     int temp_instancia; //Para asignar la instancia a los hijos
     int primerMeeseek;
 
-    //bool esHijo;
+    int pipe_a_padre[2];
 
     clock_t inicio = clock();
     double tiempoTotal = 0.0;
+
+    modificarConcluido(vglobales, 0); //concluido = false
 
     pid = fork(); //Primer Meeseek que crea la caja
 
@@ -115,17 +117,19 @@ void iniciar(char* tarea, double dificultad){
         );
 
         while(true){
-            //esHijo = false;
 
             if(intentarTarea(dificultad)){
                 //Resuelve y notifica al padre para matar a los hijos
                 Bold_Blue();
-                printf("HE FINALIZADO (pid: %d, ppid: %d, N: %d, i: %d) \n", //Temporal
+                if(vglobales->concluido == 0){
+                    printf("HE FINALIZADO (pid: %d, ppid: %d, N: %d, i: %d) \n", //Temporal
                         getpid(), 
                         getppid(), 
                         N, 
                         instancia
-                );
+                    );
+                    modificarConcluido(vglobales, 1); //concluido = true
+                }             
                 Reset_Color();
                 break;
                 //exit(0);
@@ -137,11 +141,19 @@ void iniciar(char* tarea, double dificultad){
 
                 for(int i = 0; i < numHijos; i++){
                     temp_instancia = i + 1;
+                    
+                    
+                    /*printf("Meeseeks (pid: %d) inicializando pipe_temp i: %d\n", getpid(), i + 1);
+                    int pipe_temp[2];
+                    pipe(pipe_temp);*/
+
+                    
+
                     pid = fork();
 
                     if(pid == 0){
-                        //esHijo = true;
                         //Hace lo que hacen los nuevos Meeseeks
+
                         srand(time(NULL) ^ (getpid()<<16)); //Nueva semilla basada en el pid
                         instancia = temp_instancia;
                         printf(
@@ -153,15 +165,30 @@ void iniciar(char* tarea, double dificultad){
                             getpgrp()
                         );
 
-                        dificultad = diluirDificultad(dificultad);
+                        /*printf("Meeseeks (pid: %d) asignando pipe_a_padre\n", getpid());
+                        *pipe_a_padre = pipe_temp;*/
 
+                        /*char* mensaje = malloc(sizeof(char)*500);
+                        close(pipe_temp[1]);
+                        read(pipe_temp[0], mensaje, sizeof(mensaje));
+                        close(pipe_temp[0]);*/
+                        /*char* mensaje = recibirMensajeDeTuberia(pipe_temp);
+                        printf("Hijo (pid: %d) recibe: %s\n", getpid(), mensaje);*/
+
+                        dificultad = diluirDificultad(dificultad);
                         break;
+                    }else{
+                        //Escribir la tarea a pipe_temp
+                        /*close(pipe_temp[0]);
+                        write(pipe_temp[1], tarea, sizeof(tarea));
+                        close(pipe_temp[1]);*/
+                        //setMensajeEnTuberia(pipe_temp, tarea);
+                        printf("Padre (pid: %d) escribe tarea\n", getpid());
                     }
-                    
                 }
 
                 if(pid != 0){
-                    while (wait(NULL)>0)
+                    while (wait(NULL) > 0)
                         {
                             //holi
                         }
@@ -172,8 +199,12 @@ void iniciar(char* tarea, double dificultad){
     
     }
     else{
-        wait(NULL);
+        //Codigo de proceso Meeseeks Box original, aqui se cuentan los tiempos de ejecucion
+
         tiempoTotal = (double)(clock() - inicio) / CLOCKS_PER_SEC;
+        //TODO: cambiar por un busy wait para que cuente el tiempo bien
+        wait(NULL); 
+        
         printf("The Mr Meeseeks lasted %f \n", tiempoTotal);
     }
 
