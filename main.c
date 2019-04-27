@@ -58,6 +58,7 @@ int main(){
             strcat(actividad,  ejecutarPrograma());
             break;
         case '4':
+            printf("\nBitacora de operaciones:\n%s", bitacora);
             printf("Concluyendo Mr. Meeseeks Box, hasta luego\n");
             break;
         default:
@@ -72,6 +73,7 @@ int main(){
             //guarda la actividad en la bitacora solo si es el fork de la caja
             //por eso lo guardo hasta aqui abajo
             strcat(bitacora, actividad);
+            strcat(bitacora, "********************************************\n");
         }
     }
     return 0;

@@ -105,7 +105,7 @@ void impFailedTask(){
     printf("       ◥⊙▲⊙▲⊙▲⊙▲⊙▲⊙▲⊙◤...\n");
 }
 
-int realizarOperacion(char operador, int op1, int op2){
+int realizarOperacion(char operador, int op1, int op2, int* fd){
     double resultado;
     int resuelto = 0;
     switch (operador)
@@ -132,6 +132,13 @@ int realizarOperacion(char operador, int op1, int op2){
     }
     if(resuelto == 0){
         printf("I'm %d, the result is %f \n", getpid(), resultado);
+
+        char* str_resultado = malloc(sizeof(char)*50);
+        snprintf(str_resultado, 50, "%f", resultado);
+
+        close(fd[0]);
+        write(fd[1], str_resultado, sizeof(str_resultado));
+        close(fd[1]);
     }
     return resuelto;
 }
@@ -154,11 +161,15 @@ char* operacionAritmetica(){
     clock_t inicio = clock();
     double tiempoTotal = 0.0;
 
+    int* fd = malloc(sizeof(int)*2);
+    pipe(fd);
+    char* output = malloc(sizeof(char)*50);
+
     int pid = fork();
 
     if(pid == 0){
         printf("\nHi I'm Mr Meeseeks! Look at Meeeee. Pid: %d \n\n", getpid());
-        resultado = realizarOperacion(operador, op1, op2);
+        resultado = realizarOperacion(operador, op1, op2, fd);
         if(resultado == 0){
             impMeeseek();
             Bold_Blue();
@@ -170,6 +181,11 @@ char* operacionAritmetica(){
             Bold_Red();
             printf("Oh God, I'm Mr Meeseeks %d! I failed.  \n", getpid());
             Reset_Color();
+
+            output = "ERROR";
+            close(fd[0]);
+            write(fd[1], output, sizeof(output));
+            close(fd[1]);
         }
     }
     else{
@@ -180,9 +196,22 @@ char* operacionAritmetica(){
             wait(NULL);
             tiempoTotal = (double)(clock() - inicio) / CLOCKS_PER_SEC;
             printf("The Mr Meeseek %d lasted %f \n", pid, tiempoTotal);
+
+            close(fd[1]);
+            read(fd[0], output, sizeof(output));
+            close(fd[0]);
         }
     }
-    return "";
+
+    char* mensaje = malloc(sizeof(char)*1000);
+    
+    strcat(mensaje, "Operacion Aritmetica: ");
+    strcat(mensaje, operacion);
+    strcat(mensaje, ", Resultado: ");
+    strcat(mensaje, output);
+    strcat(mensaje, "\n");
+
+    return mensaje;
 }
 
 char* ejecutarPrograma(){
@@ -196,6 +225,11 @@ char* ejecutarPrograma(){
     clock_t inicio = clock();
     double tiempoTotal = 0.0;
     int resultado = 0;
+
+    int fd[2];
+    pipe(fd);
+    char* exito = malloc(sizeof(char)*5);
+
     int pid = fork();
 
     if(pid == 0){
@@ -206,13 +240,20 @@ char* ejecutarPrograma(){
             Bold_Blue();
             printf("I'm Mr Meeseeks %d! I achieved the task. \n", getpid());
             Reset_Color();
+
+            exito = "TRUE";
         }
         else{
             impFailedTask();
             Bold_Red();
             printf("Oh God, I'm Mr Meeseeks %d! I failed.  \n", getpid());
             Reset_Color();
+
+            exito = "FALSE";
         }
+        close(fd[0]);
+        write(fd[1], exito, sizeof(exito));
+        close(fd[1]);
     }
     else{
         if(pid < 0) { //ocurrio un error
@@ -222,7 +263,20 @@ char* ejecutarPrograma(){
             wait(NULL);
             tiempoTotal = (double)(clock() - inicio) / CLOCKS_PER_SEC;
             printf("The Mr Meeseek %d lasted %f \n", pid, tiempoTotal);
+
+            close(fd[1]);
+            read(fd[0], exito, sizeof(exito));
+            close(fd[0]);
         }
     }
-    return "";
+
+    char* mensaje = malloc(sizeof(char)*1000);
+    
+    strcat(mensaje, "Ejecutar Programa: ");
+    strcat(mensaje, programa);
+    strcat(mensaje, ", Exito: ");
+    strcat(mensaje, exito);
+    strcat(mensaje, "\n");
+
+    return mensaje;
 }
