@@ -34,15 +34,11 @@ struct globales* compartirGlobales(char *segmentoMemoria, struct globales *vglob
 
     //Se inicializan las variables
     vglobales->concluido = 777;
-    
-    //vglobales->instancia = 1;
 
-    //vglobales->infoSolucionador = {.pid = 0, .ppid = 0, }
-
-    /*vglobales->infoSolucionador->pid = 0;
-    vglobales->infoSolucionador->ppid = 0;
-    vglobales->infoSolucionador->N = 0;
-    vglobales->infoSolucionador->i = 0;*/
+    vglobales->pid = 0;
+    vglobales->ppid = 0;
+    vglobales->N = 0;
+    vglobales->i = 0;
 
     vglobales->instanciasFinalizadas = 0;
 
@@ -73,13 +69,11 @@ void modificarConcluido(struct globales *vglobales, int valor){
 
 }*/
 
-void modificarInformacionSolucionador(struct infoMeeseek *info, struct globales *vglobales){
-    sem_wait(&vglobales->sem_solucionador);
-    vglobales->infoSolucionador->pid = info->pid;
-    vglobales->infoSolucionador->ppid = info->ppid;
-    vglobales->infoSolucionador->N = info->N;
-    vglobales->infoSolucionador->i = info->i; 
-    sem_post(&vglobales->sem_solucionador);
+void modificarInformacionSolucionador(int pid, int ppid, int N, int i, struct globales *vglobales){
+    vglobales->pid = pid;
+    vglobales->ppid = ppid;
+    vglobales->N = N;
+    vglobales->i = i; 
 }
 
 void setMensajeEnTuberia(int *fd, char *tarea){

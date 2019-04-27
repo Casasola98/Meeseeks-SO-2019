@@ -19,6 +19,19 @@ void Bold_Red() {
     printf("\033[1;31m");
 }
 
+void impCloud(int pid, int ppid, int N, int i){
+    Bold_Red();
+    printf("                       __________________________________________________\n");
+    printf("                      ( ");
+    Bold_Blue();
+    printf("HE FINALIZADO! pid: %d, ppid: %d, N: %d, i: %d", pid, ppid, N, i);
+    Bold_Red();
+    printf(" )\n");
+    printf("                      (__  ______________________________________________)\n");
+    printf("                         )/\n");
+    Reset_Color();
+}
+
 void impMeeseekBox(){
     printf("\n*********************\n\n");
     Bold_Blue();
@@ -51,7 +64,7 @@ void impMeeseek(){
     Bold_Red();
     printf("                  \\)(/\n");
     Bold_Blue();
-    printf("                .:/:soo\n");
+    printf("                .:/:soo\n");   
     printf("               /mMMMMMMM-\n");
     printf("              oMM");
     Reset_Color();
@@ -123,7 +136,7 @@ int realizarOperacion(char operador, int op1, int op2){
     return resuelto;
 }
 
-void operacionAritmetica(){
+char* operacionAritmetica(){
     char* operacion = malloc(sizeof(char)*10000);
 
     printf("Los Meeseeks resuelven operaciones aritmeticas binarias como '2 + 37' \n");
@@ -169,9 +182,10 @@ void operacionAritmetica(){
             printf("The Mr Meeseek %d lasted %f \n", pid, tiempoTotal);
         }
     }
+    return "";
 }
 
-void ejecutarPrograma(){
+char* ejecutarPrograma(){
 
     char* programa = malloc(sizeof(char)*10000);
 
@@ -210,4 +224,5 @@ void ejecutarPrograma(){
             printf("The Mr Meeseek %d lasted %f \n", pid, tiempoTotal);
         }
     }
+    return "";
 }

@@ -93,7 +93,7 @@ int obtenerHijosPorCrear(double dificultad){
     }
 }
 
-void iniciar(char* tarea, double dificultad){
+char* iniciar(char* tarea, double dificultad){
     pid_t pid;
     vglobales = compartirGlobales(segmentoMemoria, vglobales);
     //init_semaforos(vglobales);
@@ -129,14 +129,16 @@ void iniciar(char* tarea, double dificultad){
 
             if(intentarTarea(dificultad)){
                 //Resuelve y notifica al padre para matar a los hijos
-                Bold_Blue();
+                
                 if(vglobales->concluido == 0){
-                    printf("HE FINALIZADO (pid: %d, ppid: %d, N: %d, i: %d) \n", //Temporal
+                    /*printf("HE FINALIZADO (pid: %d, ppid: %d, N: %d, i: %d) \n", //Temporal
                         getpid(), 
                         getppid(), 
                         N, 
                         instancia
-                    );
+                    );*/
+                    
+                    modificarInformacionSolucionador(getpid(), getppid(), N, instancia, vglobales);
                     modificarConcluido(vglobales, 1); //concluido = true
 
                     /*//Escribe senal a padre para finalizar
@@ -233,18 +235,30 @@ void iniciar(char* tarea, double dificultad){
         tiempoTotal = (double)(clock() - inicio) / CLOCKS_PER_SEC;
 
         kill(-pid, SIGTERM);
-        Bold_Red();
-        printf("SENAL DE KILL\n");
-        Reset_Color();
         sleep(2);
         kill(-pid, SIGKILL);
-        
+
         wait(NULL); 
+
+        impCloud( vglobales->pid, vglobales->ppid, vglobales->N, vglobales->i );
+        impMeeseek();
+        Reset_Color();
         
         printf(
-            "The Mr Meeseeks lasted %f hizo %d instancias\n", 
-            tiempoTotal, 
-            vglobales->instanciasFinalizadas
+            "The %d Mr Meeseeks lasted %f seconds\n",  
+            vglobales->instanciasFinalizadas,
+            tiempoTotal
         );
+
+        //Escribe el mensaje que va a contener la bitacora
+        char* mensaje = malloc(sizeof(char)*1000);
+        char* dif = malloc(sizeof(char)*1000);
+        strcat(mensaje, "Consulta Textual: ");
+        strcat(mensaje, tarea);
+        strcat(mensaje, ", Dificultad: ");
+        snprintf(dif, 50, "%f", dificultad);
+        strcat(mensaje, dif);
+        strcat(mensaje, "\n");
+        return mensaje;
     }
 }

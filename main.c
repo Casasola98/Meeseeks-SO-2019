@@ -25,7 +25,7 @@ int main(){
     char n;
     char* tarea;
     double dificultad;
-
+    char* bitacora = malloc(sizeof(char)*1048576);
 
     int MeeseekBox = getpid();
     printf("Meeseeks Box    %d \n", MeeseekBox);
@@ -37,19 +37,25 @@ int main(){
         scanf("%c", &n);
         getchar();
         
+        char* actividad;
+
         switch (n)
         {
         case '1':
             tarea = leerSolicitud();
             dificultad = leerDificultad();
 
-            iniciar(tarea, dificultad);
+            actividad = malloc(sizeof(char)*1000);
+            strcat(actividad, iniciar(tarea, dificultad));
+            
             break;
         case '2':
-            operacionAritmetica();
+            actividad = malloc(sizeof(char)*1000);
+            strcat(actividad, operacionAritmetica());
             break;
         case '3':
-            ejecutarPrograma();
+            actividad = malloc(sizeof(char)*1000);
+            strcat(actividad,  ejecutarPrograma());
             break;
         case '4':
             printf("Concluyendo Mr. Meeseeks Box, hasta luego\n");
@@ -61,6 +67,11 @@ int main(){
 
         if(MeeseekBox != getpid()){
             break;
+        }
+        else{
+            //guarda la actividad en la bitacora solo si es el fork de la caja
+            //por eso lo guardo hasta aqui abajo
+            strcat(bitacora, actividad);
         }
     }
     return 0;
