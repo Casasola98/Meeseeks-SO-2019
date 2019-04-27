@@ -22,12 +22,6 @@
 int main(){
     srand (time(NULL)); //Inicializa el seed del rand
 
-    char *segmentoMemoria;
-    struct globales *vglobales;
-
-    compartirGlobales(segmentoMemoria, vglobales);
-    init_semaforos(vglobales);
-
     char n;
     char* tarea;
     double dificultad;
@@ -49,7 +43,7 @@ int main(){
             tarea = leerSolicitud();
             dificultad = leerDificultad();
 
-            iniciar(tarea, dificultad, vglobales);
+            iniciar(tarea, dificultad);
             break;
         case '2':
             operacionAritmetica();

@@ -23,7 +23,7 @@
 
 #include "estructuras.h"
 
-void compartirGlobales(char *segmentoMemoria, struct globales *vglobales){
+struct globales* compartirGlobales(char *segmentoMemoria, struct globales *vglobales){
     key_t key;
     int shmid;
 
@@ -33,7 +33,8 @@ void compartirGlobales(char *segmentoMemoria, struct globales *vglobales){
     vglobales = (struct globales*) segmentoMemoria; //Ahora vglobales es compartida
 
     //Se inicializan las variables
-    vglobales->concluido = 0;
+    vglobales->concluido = 777;
+    
     //vglobales->instancia = 1;
 
     //vglobales->infoSolucionador = {.pid = 0, .ppid = 0, }
@@ -44,6 +45,8 @@ void compartirGlobales(char *segmentoMemoria, struct globales *vglobales){
     vglobales->infoSolucionador->i = 0;*/
 
     vglobales->instanciasFinalizadas = 0;
+
+    return vglobales;
 }
 
 void liberarGlobales(char *segmentoMemoria){
