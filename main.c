@@ -25,7 +25,7 @@ int main(){
     char n;
     char* tarea;
     double dificultad;
-    char* bitacora = malloc(sizeof(char)*1048576);
+    char* bitacora = malloc(sizeof(char)*10000);
 
     int MeeseekBox = getpid();
     printf("Meeseeks Box    %d \n", MeeseekBox);

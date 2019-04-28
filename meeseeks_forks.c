@@ -61,8 +61,8 @@ double diluirDificultad(double dificultad, int numHIjos){
         return dificultad;
     } else{
         double temp = generarRandom(1, (int) dificultad); //Random no mayor a la dificultad
-        double reduc = temp * (dificultad / generarRandom(650,950)); //Se reduce a una milesima dictada por la dificultad
-        double extra = (reduc * (numHIjos / 10));
+        double reduc = temp * (dificultad / generarRandom(500,700)); //Se reduce a una milesima dictada por la dificultad
+        double extra = (reduc * (numHIjos/2));
 
         return dificultad + reduc + extra;
     }
@@ -83,7 +83,7 @@ bool intentarTarea(double dificultad){
 
 int obtenerHijosPorCrear(double dificultad){
     if (dificultad >= 0 & dificultad <= 45){
-        return generarRandom(3, 5); //TODO ver si hacemos que cree n meeseeks :v
+        return generarRandom(1, 5); 
         
     }else if(dificultad > 45 & dificultad <= 85){
         //Crea entre uno y dos Meeseeks
