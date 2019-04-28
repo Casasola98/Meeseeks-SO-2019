@@ -35,6 +35,8 @@ struct globales* compartirGlobales(char *segmentoMemoria, struct globales *vglob
     //Se inicializan las variables
     vglobales->concluido = 777;
 
+    vglobales->caos_planetario = 0;
+
     vglobales->pid = 0;
     vglobales->ppid = 0;
     vglobales->N = 0;
@@ -59,6 +61,12 @@ void modificarConcluido(struct globales *vglobales, int valor){
     sem_wait(&vglobales->sem_concluido);
     vglobales->concluido = valor;
     sem_post(&vglobales->sem_concluido);
+}
+
+void modificarCaos(struct globales *vglobales, int valor){
+    sem_wait(&vglobales->sem_caos_planetario);
+    vglobales->caos_planetario = valor;
+    sem_post(&vglobales->sem_caos_planetario);
 }
 
 /*void modificarInstancia(int *instancia, struct globales *vglobales){

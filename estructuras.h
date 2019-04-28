@@ -15,10 +15,13 @@ controlar su modificacion.
 */
 struct globales{
     sem_t sem_concluido;
+    sem_t sem_caos_planetario;
     //sem_t sem_instancia;
     //sem_t sem_solucionador;
 
     int concluido;
+    int caos_planetario;
+
     int pid;
     int ppid;
     int N;

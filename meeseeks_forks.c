@@ -56,14 +56,15 @@ int leerDificultad(){
     return dificultad;
 }
 
-double diluirDificultad(double dificultad){
+double diluirDificultad(double dificultad, int numHIjos){
     if(dificultad == 0){
         return dificultad;
     } else{
         double temp = generarRandom(1, (int) dificultad); //Random no mayor a la dificultad
-        double reduc = temp * (dificultad / generarRandom(600,800)); //Se reduce a una milesima dictada por la dificultad
-        
-        return dificultad + reduc;
+        double reduc = temp * (dificultad / generarRandom(650,950)); //Se reduce a una milesima dictada por la dificultad
+        double extra = (reduc * (numHIjos / 10));
+
+        return dificultad + reduc + extra;
     }
 }
 
@@ -95,9 +96,10 @@ int obtenerHijosPorCrear(double dificultad){
 
 char* iniciar(char* tarea, double dificultad){
     pid_t pid;
+
     vglobales = compartirGlobales(segmentoMemoria, vglobales);
-    //init_semaforos(vglobales);
     sem_init(&vglobales->sem_concluido, 1, 1);
+    sem_init(&vglobales->sem_caos_planetario, 1, 1);
 
     int N = 1;
     int instancia = 1;
@@ -117,19 +119,17 @@ char* iniciar(char* tarea, double dificultad){
     if(pid == 0){
         primerMeeseek = getpid();
         setpgid(0,0);
-        printf("Hi I'm Mr Meeseeks! Look at Meeeee. (pid: %d, ppid: %d, N: %d, i: %d, gpid: %d)\n",
+        printf("Hi I'm Mr Meeseeks! Look at Meeeee. (pid: %d, ppid: %d, N: %d, i: %d)\n",
             getpid(),
             getppid(),
             N,
-            instancia,
-            getpgrp()
+            instancia
         );
 
         while(true){
 
             if(intentarTarea(dificultad)){
                 //Resuelve y notifica al padre para matar a los hijos
-                
                 if(vglobales->concluido == 0){
                     /*printf("HE FINALIZADO (pid: %d, ppid: %d, N: %d, i: %d) \n", //Temporal
                         getpid(), 
@@ -140,30 +140,24 @@ char* iniciar(char* tarea, double dificultad){
                     
                     modificarInformacionSolucionador(getpid(), getppid(), N, instancia, vglobales);
                     modificarConcluido(vglobales, 1); //concluido = true
-
-                    /*//Escribe senal a padre para finalizar
-                    char* senal = "KILL";
-                    //printf("senal: %s\n", senal);
-
-                    close(pipe_a_padre[0]);
-                    write(pipe_a_padre[1], senal, sizeof(senal));
-                    close(pipe_a_padre[1]);*/
                 }             
                 Reset_Color();
                 break;
-                //exit(0);
                 
             }else{
                 //Crea hijos
                 int numHijos = obtenerHijosPorCrear(dificultad);
                 N++; //Incrementa el nivel
+
+                if(vglobales->instanciasFinalizadas >= 11000){
+                    modificarCaos(vglobales, 1); //Se declara caos planetario
+                }
+
                 pipes_a_hijos = malloc(sizeof(int)*numHijos);
 
                 for(int i = 0; i < numHijos; i++){
                     temp_instancia = i + 1;
                     
-                    
-                    //printf("Meeseeks (pid: %d) inicializando pipe_temp i: %d\n", getpid(), i + 1);
                     int* pipe_temp = malloc(sizeof(int)*2);
                     pipe(pipe_temp);
 
@@ -171,18 +165,16 @@ char* iniciar(char* tarea, double dificultad){
 
                     if(pid == 0){
                         //Hace lo que hacen los nuevos Meeseeks
-
                         vglobales->instanciasFinalizadas++;
 
                         srand(time(NULL) ^ (getpid()<<16)); //Nueva semilla basada en el pid
                         instancia = temp_instancia;
                         printf(
-                            "Hi I'm Mr Meeseeks! Look at Meeeee. (pid: %d, ppid: %d, N: %d, i: %d, gpid: %d)\n",
+                            "Hi I'm Mr Meeseeks! Look at Meeeee. (pid: %d, ppid: %d, N: %d, i: %d)\n",
                             getpid(),
                             getppid(),
                             N,
-                            instancia,
-                            getpgrp()
+                            instancia
                         );
 
                         //printf("Meeseeks (pid: %d) asignando pipe_a_padre\n", getpid());
@@ -193,10 +185,8 @@ char* iniciar(char* tarea, double dificultad){
                         close(pipe_a_padre[1]);
                         read(pipe_a_padre[0], mensaje, sizeof(mensaje));
                         close(pipe_a_padre[0]);
-                        //char* mensaje = recibirMensajeDeTuberia(pipe_a_padre);
-                        //printf("Hijo (pid: %d) recibe: %s\n", getpid(), mensaje);
 
-                        dificultad = diluirDificultad(dificultad);
+                        dificultad = diluirDificultad(dificultad, numHijos);
                         break;
                     }else{
                         //Guarda el pipe al hijo
@@ -206,23 +196,11 @@ char* iniciar(char* tarea, double dificultad){
                         close(pipe_temp[0]);
                         write(pipe_temp[1], tarea, sizeof(tarea));
                         close(pipe_temp[1]);
-                        //setMensajeEnTuberia(pipe_temp, tarea);
-                        //printf("Padre (pid: %d) escribe tarea\n", getpid());
                     }
                 }
 
                 if(pid != 0){
-                    //bool finalizado = false;
-
-                    while (wait(NULL) > 0)
-                        {
-                            /*if(!finalizado){
-                                char* mensaje = malloc(sizeof(char)*500);
-                                close(pipe_a_padre[1]);
-                                read(pipe_a_padre[0], mensaje, sizeof(mensaje));
-                                close(pipe_a_padre[0]);
-                            }*/
-                        }
+                    while (wait(NULL) > 0){}
                     break;
                 }
             }
@@ -231,7 +209,7 @@ char* iniciar(char* tarea, double dificultad){
     }
     else{
         //Codigo de proceso Meeseeks Box original, aqui se cuentan los tiempos de ejecucion
-        while(vglobales->concluido == 0){}
+        while(vglobales->concluido == 0 && vglobales->caos_planetario == 0){}
         tiempoTotal = (double)(clock() - inicio) / CLOCKS_PER_SEC;
 
         kill(-pid, SIGTERM);
@@ -240,9 +218,16 @@ char* iniciar(char* tarea, double dificultad){
 
         wait(NULL); 
 
-        impCloud( vglobales->pid, vglobales->ppid, vglobales->N, vglobales->i );
-        impMeeseek();
-        Reset_Color();
+        //Se fija si ha concluido o si hay caos
+        if(vglobales->caos_planetario == 1){
+            printf("ALERTA! SE HA DECLARADO CAOS PLANETARIO\n");
+            impFailedTask();
+        }else{
+            impCloud( vglobales->pid, vglobales->ppid, vglobales->N, vglobales->i );
+            impMeeseek();
+            Reset_Color();
+        }
+        
         
         printf(
             "The %d Mr Meeseeks lasted %f seconds\n",  
